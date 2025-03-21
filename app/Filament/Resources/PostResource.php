@@ -18,7 +18,7 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
     protected static ?string $navigationGroup = 'Post';
 
@@ -31,15 +31,19 @@ class PostResource extends Resource
                     ->required()
                     ->dehydrated(),
                 Forms\Components\Select::make('category_id')
+                    ->label('Pilih Kategori')
                     ->relationship('category', 'name')
                     ->required(),
                 Forms\Components\TextInput::make('judul_berita')
+                    ->label('Judul Berita')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('tanggal')
+                    ->label('Tanggal')
                     ->required()
                     ->default(now()),
                 Forms\Components\Select::make('status')
+                    ->label('Status')
                     ->options([
                         'draft' => 'Draft',
                         'publish' => 'Publish'
@@ -47,14 +51,17 @@ class PostResource extends Resource
                     ->default('draft')
                     ->required(),
                 Forms\Components\FileUpload::make('images')
+                    ->label('Gambar')
                     ->image()
                     ->disk('public')
                     ->directory('posts')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('images_caption')
+                    ->label('Caption Gambar')
                     ->maxLength(255)
                     ->columnSpanFull(),
                 Forms\Components\RichEditor::make('content_body')
+                    ->label('Isi Berita')
                     ->required()
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('conten_body')

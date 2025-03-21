@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentEditProfilePlugin::make()
                     ->setTitle('My Profile')
                     ->setNavigationLabel('My Profile')
-                    ->setNavigationGroup('Group Profile')
+                    ->setNavigationGroup('Profile')
                     ->setIcon('heroicon-o-user')
                     ->shouldShowAvatarForm(
                         value: true,
