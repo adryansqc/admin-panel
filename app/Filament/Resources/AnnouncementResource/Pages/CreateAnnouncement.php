@@ -13,6 +13,11 @@ class CreateAnnouncement extends CreateRecord
 
     public function getTitle(): string|Htmlable
     {
-        return 'Buat Pengumman';
+        return 'Buat Pengumuman';
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

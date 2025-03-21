@@ -31,7 +31,8 @@ class AnnouncementResource extends Resource
                 Forms\Components\TextInput::make('title')
                     ->label('Judul Pengumuman')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
                 Forms\Components\RichEditor::make('content')
                     ->label('Isi Berita')
                     ->required()
@@ -56,6 +57,7 @@ class AnnouncementResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -78,6 +80,7 @@ class AnnouncementResource extends Resource
             'index' => Pages\ListAnnouncements::route('/'),
             'create' => Pages\CreateAnnouncement::route('/create'),
             'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
+            'view' => Pages\ViewAnnouncement::route('/{record}'),
         ];
     }
 
