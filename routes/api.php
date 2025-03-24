@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PostApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\AnnouncementApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -30,3 +31,10 @@ Route::post('categories', [CategoryApiController::class, 'store']);
 Route::get('categories/{id}', [CategoryApiController::class, 'show']);
 Route::put('categories/{id}', [CategoryApiController::class, 'update']);
 Route::delete('categories/{id}', [CategoryApiController::class, 'destroy']);
+
+// Announcement Routes
+Route::get('announcements', [AnnouncementApiController::class, 'index']);
+Route::post('announcements', [AnnouncementApiController::class, 'store']);
+Route::get('announcements/{id}', [AnnouncementApiController::class, 'show']);
+Route::put('announcements/{id}', [AnnouncementApiController::class, 'update']);
+Route::delete('announcements/{id}', [AnnouncementApiController::class, 'destroy']);

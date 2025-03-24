@@ -39,13 +39,9 @@ class ViewPost extends ViewRecord
                             ->columnSpanFull(),
                         Infolists\Components\ImageEntry::make('images')
                             ->label('Gambar')
+                            ->placeholder('Gambar tidak ada')
                             ->disk('public')
-                            ->visibility(fn ($state) => $state !== null)
-                            ->columnSpanFull(),
-                        Infolists\Components\TextEntry::make('images')
-                            ->label('Gambar')
-                            ->default('Gambar tidak ada')
-                            ->visible(fn ($state) => $state === null)
+                            ->visibility(fn($state) => $state !== null)
                             ->columnSpanFull(),
                         Infolists\Components\TextEntry::make('images_caption')
                             ->label('Caption Gambar')

@@ -3,30 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PostCollection;
+use App\Http\Resources\AnnouncementCollection;
 use Illuminate\Http\Request;
-use App\Models\Post;
-use App\Http\Resources\PostResource;
+use App\Models\Announcement;
+use App\Http\Resources\AnnouncementResource;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response;
 
-class PostApiController extends Controller
+class AnnouncementApiController extends Controller
 {
     public function index(Request $request)
     {
         // $page = $request->input('page');
         // $limit = $request->input('limit', null);
-        $posts = Post::orderBy('id', 'desc')->paginate(10);
-        // ->when($page, function ($query) use ($limit) {
-        //     return $query->paginate($limit);
-        // }, function ($query) use ($limit) {
-        //     return $query->limit($limit)->get();
-        // });
-
-        // return PostResource::collection($posts)->response()->setStatusCode(200);
-        return (new PostCollection($posts))->response()->setStatusCode(200);
+        $announcements = Announcement::orderBy('id', 'desc')->paginate(10);
+        // $announcements = Announcement::orderBy('id', 'desc')
+        //     ->when($page, function ($query) use ($limit) {
+        //         return $query->paginate($limit);
+        //     }, function ($query) use ($limit) {
+        //         return $query->limit($limit)->get();
+        //     });
+        // return AnnouncementResource::collection($announcements)->response()->setStatusCode(200);
+        return (new AnnouncementCollection($announcements))->response()->setStatusCode(200);
     }
 
     public function store(Request $request)
@@ -34,33 +33,20 @@ class PostApiController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,id',
-                'category_id' => 'required|exists:categories,id',
-                'judul_berita' => 'required|string|max:255',
-                'tanggal' => 'required|date',
-                'status' => 'required|in:draft,publish',
-                'images' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'images_caption' => 'nullable|string|max:255',
-                'content_body' => 'required|string',
+                'title' => 'required|string|max:255',
+                'content' => 'required|string',
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            $imagePath = null;
-            if ($request->hasFile('images')) {
-                $imagePath = $request->file('images')->store('posts', 'public');
-            }
-
-            $data = $validator->validated();
-            $data['images'] = $imagePath;
-            $data['jumlah_view'] = 0;
-            $post = Post::create($data);
+            $announcement = Announcement::create($validator->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data created successfully.',
-                'data' => new PostResource($post)
+                'data' => new AnnouncementResource($announcement)
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -80,12 +66,12 @@ class PostApiController extends Controller
     public function show($id)
     {
         try {
-            $post = Post::findOrFail($id);
+            $announcement = Announcement::findOrFail($id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data retrieved successfully.',
-                'data' => new PostResource($post)
+                'data' => new AnnouncementResource($announcement)
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
@@ -106,36 +92,21 @@ class PostApiController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,id',
-                'category_id' => 'required|exists:categories,id',
-                'judul_berita' => 'required|string|max:255',
-                'tanggal' => 'required|date',
-                'status' => 'required|in:draft,publish',
-                'images' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'images_caption' => 'nullable|string|max:255',
-                'content_body' => 'required|string',
+                'title' => 'required|string|max:255',
+                'content' => 'required|string',
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            $post = Post::findOrFail($id);
-            if ($request->hasFile('images')) {
-                if ($post->images) {
-                    Storage::disk('public')->delete($post->images);
-                }
-                $imagePath = $request->file('images')->store('posts', 'public');
-                $post->images = $imagePath;
-            }
-
-            $data = $validator->validated();
-            unset($data['images']); // Remove images from data as we handled it separately
-            $post->update($data);
+            $announcement = Announcement::findOrFail($id);
+            $announcement->update($validator->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data updated successfully.',
-                'data' => new PostResource($post)
+                'data' => new AnnouncementResource($announcement)
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -160,13 +131,8 @@ class PostApiController extends Controller
     public function destroy($id)
     {
         try {
-            $post = Post::findOrFail($id);
-
-            if ($post->images) {
-                Storage::disk('public')->delete($post->images);
-            }
-
-            $post->delete();
+            $announcement = Announcement::findOrFail($id);
+            $announcement->delete();
 
             return response()->json([
                 'success' => true,

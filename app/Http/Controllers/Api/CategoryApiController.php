@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryCollection;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Http\Resources\CategoryResource;
@@ -14,16 +15,17 @@ class CategoryApiController extends Controller
 {
     public function index(Request $request)
     {
-        $page = $request->input('page');
-        $limit = $request->input('limit', null);
-        $categories = Category::orderBy('id', 'desc')
-            ->when($page, function ($query) use ($limit) {
-                return $query->paginate($limit);
-            }, function ($query) use ($limit) {
-                return $query->limit($limit)->get();
-            });
+        // $page = $request->input('page');
+        // $limit = $request->input('limit', null);
+        $categories = Category::orderBy('id', 'desc')->paginate(10);
+        // ->when($page, function ($query) use ($limit) {
+        //     return $query->paginate($limit);
+        // }, function ($query) use ($limit) {
+        //     return $query->limit($limit)->get();
+        // });
 
-        return CategoryResource::collection($categories)->response()->setStatusCode(200);
+        // return CategoryResource::collection($categories)->response()->setStatusCode(200);
+        return (new CategoryCollection($categories))->response()->setStatusCode(200);
     }
 
     public function store(Request $request)

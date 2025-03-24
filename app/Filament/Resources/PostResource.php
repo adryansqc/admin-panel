@@ -33,6 +33,8 @@ class PostResource extends Resource
                 Forms\Components\Select::make('category_id')
                     ->label('Pilih Kategori')
                     ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('judul_berita')
                     ->label('Judul Berita')
@@ -55,6 +57,9 @@ class PostResource extends Resource
                     ->image()
                     ->disk('public')
                     ->directory('posts')
+                    ->imageResizeMode('contain')
+                    ->imageResizeTargetWidth('300')
+                    ->imageResizeTargetHeight('300')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('images_caption')
                     ->label('Caption Gambar')

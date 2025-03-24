@@ -17,7 +17,9 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'user' => $this->user->name,
             'category_id' => $this->category_id,
+            'category' => $this->category->name,
             'judul_berita' => $this->judul_berita,
             'tanggal' => $this->tanggal,
             'status' => $this->status,
@@ -25,8 +27,8 @@ class PostResource extends JsonResource
             'images' => $this->images,
             'images_caption' => $this->images_caption,
             'content_body' => $this->content_body,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            // 'created_at' => $this->created_at,
+            // 'updated_at' => $this->updated_at
         ];
     }
 }
