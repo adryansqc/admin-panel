@@ -16,16 +16,15 @@ class PostApiController extends Controller
 {
     public function index(Request $request)
     {
-        // $page = $request->input('page');
-        // $limit = $request->input('limit', null);
-        $posts = Post::orderBy('id', 'desc')->paginate(10);
-        // ->when($page, function ($query) use ($limit) {
-        //     return $query->paginate($limit);
-        // }, function ($query) use ($limit) {
-        //     return $query->limit($limit)->get();
-        // });
+        $search = $request->input('search');
+        
+        $posts = Post::orderBy('id', 'desc')
+            ->when($search, function ($query) use ($search) {
+                $query->where('judul_berita', 'like', '%' . $search . '%')
+                    ->orWhere('content_body', 'like', '%' . $search . '%');
+            })
+            ->paginate(10);
 
-        // return PostResource::collection($posts)->response()->setStatusCode(200);
         return (new PostCollection($posts))->response()->setStatusCode(200);
     }
 
