@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PostApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\AnnouncementApiController;
+use App\Http\Controllers\Api\AlbumApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -38,3 +39,10 @@ Route::post('announcements', [AnnouncementApiController::class, 'store']);
 Route::get('announcements/{id}', [AnnouncementApiController::class, 'show']);
 Route::put('announcements/{id}', [AnnouncementApiController::class, 'update']);
 Route::delete('announcements/{id}', [AnnouncementApiController::class, 'destroy']);
+
+// Album Routes
+Route::get('albums', [AlbumApiController::class, 'index']);
+Route::post('albums', [AlbumApiController::class, 'store']);
+Route::get('albums/{id}', [AlbumApiController::class, 'show']);
+Route::put('albums/{id}', [AlbumApiController::class, 'update']);
+Route::delete('albums/{id}', [AlbumApiController::class, 'destroy']);

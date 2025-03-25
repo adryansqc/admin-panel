@@ -3,30 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PostCollection;
+use App\Http\Resources\AlbumCollection;
+use App\Http\Resources\AlbumResource;
+use App\Models\Album;
 use Illuminate\Http\Request;
-use App\Models\Post;
-use App\Http\Resources\PostResource;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response;
 
-class PostApiController extends Controller
+class AlbumApiController extends Controller
 {
     public function index(Request $request)
     {
-        // $page = $request->input('page');
-        // $limit = $request->input('limit', null);
-        $posts = Post::orderBy('id', 'desc')->paginate(10);
-        // ->when($page, function ($query) use ($limit) {
-        //     return $query->paginate($limit);
-        // }, function ($query) use ($limit) {
-        //     return $query->limit($limit)->get();
-        // });
-
-        // return PostResource::collection($posts)->response()->setStatusCode(200);
-        return (new PostCollection($posts))->response()->setStatusCode(200);
+        $albums = Album::orderBy('id', 'desc')->paginate(10);
+        return (new AlbumCollection($albums))->response()->setStatusCode(200);
     }
 
     public function store(Request $request)
@@ -34,33 +25,28 @@ class PostApiController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,id',
-                'category_id' => 'required|exists:categories,id',
-                'judul_berita' => 'required|string|max:255',
-                'tanggal' => 'required|date',
-                'status' => 'required|in:draft,publish',
-                'images' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'images_caption' => 'nullable|string|max:255',
-                'content_body' => 'required|string',
+                'title' => 'required|string|max:255',
+                'album_type' => 'required|in:foto,video',
+                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            $imagePath = null;
-            if ($request->hasFile('images')) {
-                $imagePath = $request->file('images')->store('posts', 'public');
+            $coverPath = null;
+            if ($request->hasFile('cover')) {
+                $coverPath = $request->file('cover')->store('album', 'public');
             }
 
             $data = $validator->validated();
-            $data['images'] = $imagePath;
-            $data['jumlah_view'] = 0;
-            $post = Post::create($data);
+            $data['cover'] = $coverPath;
+            $album = Album::create($data);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Data created successfully.',
-                'data' => new PostResource($post)
+                'message' => 'Album created successfully.',
+                'data' => new AlbumResource($album)
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -80,18 +66,17 @@ class PostApiController extends Controller
     public function show($id)
     {
         try {
-            $post = Post::findOrFail($id);
-            $post->increment('jumlah_view');
+            $album = Album::with('fotos')->findOrFail($id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Data retrieved successfully.',
-                'data' => new PostResource($post)
+                'message' => 'Album retrieved successfully.',
+                'data' => new AlbumResource($album)
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data not found.',
+                'message' => 'Album not found.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
@@ -107,36 +92,32 @@ class PostApiController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,id',
-                'category_id' => 'required|exists:categories,id',
-                'judul_berita' => 'required|string|max:255',
-                'tanggal' => 'required|date',
-                'status' => 'required|in:draft,publish',
-                'images' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'images_caption' => 'nullable|string|max:255',
-                'content_body' => 'required|string',
+                'title' => 'required|string|max:255',
+                'album_type' => 'required|in:foto,video',
+                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            $post = Post::findOrFail($id);
-            if ($request->hasFile('images')) {
-                if ($post->images) {
-                    Storage::disk('public')->delete($post->images);
+            $album = Album::findOrFail($id);
+            if ($request->hasFile('cover')) {
+                if ($album->cover) {
+                    Storage::disk('public')->delete($album->cover);
                 }
-                $imagePath = $request->file('images')->store('posts', 'public');
-                $post->images = $imagePath;
+                $coverPath = $request->file('cover')->store('album', 'public');
+                $album->cover = $coverPath;
             }
 
             $data = $validator->validated();
-            unset($data['images']); // Remove images from data as we handled it separately
-            $post->update($data);
+            unset($data['cover']);
+            $album->update($data);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Data updated successfully.',
-                'data' => new PostResource($post)
+                'message' => 'Album updated successfully.',
+                'data' => new AlbumResource($album)
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -147,7 +128,7 @@ class PostApiController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data not found.',
+                'message' => 'Album not found.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
@@ -161,22 +142,32 @@ class PostApiController extends Controller
     public function destroy($id)
     {
         try {
-            $post = Post::findOrFail($id);
+            $album = Album::findOrFail($id);
 
-            if ($post->images) {
-                Storage::disk('public')->delete($post->images);
+            // Delete cover image
+            if ($album->cover) {
+                Storage::disk('public')->delete($album->cover);
             }
 
-            $post->delete();
+            // Delete related photos
+            foreach ($album->fotos as $foto) {
+                if ($foto->image) {
+                    foreach ($foto->image as $image) {
+                        Storage::disk('public')->delete($image);
+                    }
+                }
+            }
+
+            $album->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Data deleted successfully.'
+                'message' => 'Album deleted successfully.'
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data not found.',
+                'message' => 'Album not found.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([

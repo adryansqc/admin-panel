@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             PostSeeder::class,
             AnnouncementSeeder::class,
+            AlbumSeeder::class,
+            FotoSeeder::class,
         ]);
     }
 }
