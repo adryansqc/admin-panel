@@ -5,6 +5,7 @@ namespace App\Filament\Resources\VideoResource\Pages;
 use App\Filament\Resources\VideoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Contracts\Support\Htmlable;
 
 class EditVideo extends EditRecord
 {
@@ -15,5 +16,10 @@ class EditVideo extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return 'Edit Video';
     }
 }

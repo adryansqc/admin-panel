@@ -19,9 +19,11 @@ class AlbumResource extends Resource
 {
     protected static ?string $model = Album::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
 
     protected static ?string $navigationGroup = 'Galeri';
+
+    protected static ?string $navigationLabel = 'Album Foto';
 
     public static function form(Form $form): Form
     {
